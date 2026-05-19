@@ -259,6 +259,9 @@
 + (BOOL)customVoice {
     return [[NSUserDefaults standardUserDefaults] boolForKey:@"custom_voice_upload"];
 }
++ (BOOL)disableImmersivePlayer {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:@"disable_immersive_player"];
+}
 + (UIViewController *)BHTSettingsWithAccount:(TFNTwitterAccount *)twAccount {
     SettingsViewController *pref = [[SettingsViewController alloc] initWithTwitterAccount:twAccount];
     [pref.navigationItem setTitleView:[objc_getClass("TFNTitleView") titleViewWithTitle:@"BHTwitter" subtitle:twAccount.displayUsername]];

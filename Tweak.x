@@ -838,7 +838,14 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     if ([key isEqualToString:@"media_upload_4k_enabled"]) {
         if ([BHTManager mediaUpload4k]) return true;
     }
-    
+
+    if ([BHTManager disableImmersivePlayer]) {
+        NSString *lk = [key lowercaseString];
+        if ([lk containsString:@"immersive"] || [lk containsString:@"explore"] || [lk containsString:@"full_screen_video"]) {
+            return false;
+        }
+    }
+
     return %orig;
 }
 %end
@@ -1061,6 +1068,26 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     } else {
         return %orig;
     }
+}
+%end
+
+// MARK: Disable Immersive Explore (pull-down short video feed)
+%hook T1ImmersiveExploreViewController
+- (void)viewDidLoad {
+    %orig;
+    if ([BHTManager disableImmersivePlayer]) {
+        id viewModel = [(id)self valueForKey:@"viewModel"];
+        @try {
+            [viewModel setValue:@(NO) forKey:@"isAutoPlayNextEnabled"];
+            [viewModel setValue:@(NO) forKey:@"autoPlayNextEnabled"];
+        } @catch (NSException *e) {}
+    }
+}
+- (void)handleVerticalPan:(id)gesture {
+    if ([BHTManager disableImmersivePlayer]) {
+        return;
+    }
+    %orig;
 }
 %end
 

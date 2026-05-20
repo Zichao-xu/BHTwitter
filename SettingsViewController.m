@@ -194,7 +194,9 @@ static UIFont *TwitterChirpFont(TwitterFontStyle style) {
         PSSpecifier *hideTrendVideos = [self newSwitchCellWithTitle:[[BHTBundle sharedBundle] localizedStringForKey:@"HIDE_TREND_VIDEOS_OPTION_TITLE"] detailTitle:[[BHTBundle sharedBundle] localizedStringForKey:@"HIDE_TREND_VIDEOS_OPTION_DETAIL_TITLE"] key:@"hide_trend_videos" defaultValue:false changeAction:nil];
         
         PSSpecifier *videoLayerCaption = [self newSwitchCellWithTitle:[[BHTBundle sharedBundle] localizedStringForKey:@"DISABLE_VIDEO_LAYER_CAPTIONS_OPTION_TITLE"] detailTitle:nil key:@"dis_VODCaptions" defaultValue:false changeAction:nil];
-        
+
+        PSSpecifier *disableImmersivePlayer = [self newSwitchCellWithTitle:[[BHTBundle sharedBundle] localizedStringForKey:@"DISABLE_IMMERSIVE_PLAYER_TITLE"] detailTitle:nil key:@"disable_immersive_player" defaultValue:true changeAction:nil];
+
         PSSpecifier *noHistory = [self newSwitchCellWithTitle:[[BHTBundle sharedBundle] localizedStringForKey:@"NO_HISTORY_OPTION_TITLE"] detailTitle:[[BHTBundle sharedBundle] localizedStringForKey:@"NO_HISTORY_OPTION_DETAIL_TITLE"] key:@"no_his" defaultValue:false changeAction:nil];
         
         PSSpecifier *bioTranslate = [self newSwitchCellWithTitle:[[BHTBundle sharedBundle] localizedStringForKey:@"BIO_TRANSALTE_OPTION_TITLE"] detailTitle:[[BHTBundle sharedBundle] localizedStringForKey:@"BIO_TRANSALTE_OPTION_DETAIL_TITLE"] key:@"bio_translate" defaultValue:false changeAction:nil];
@@ -279,6 +281,7 @@ static UIFont *TwitterChirpFont(TwitterFontStyle style) {
             hideTopicsToFollow,
             hideTrendVideos,
             videoLayerCaption,
+            disableImmersivePlayer,
             directSave,
             noHistory,
             bioTranslate,

@@ -4,6 +4,8 @@
 #import "BHTBundle/BHTBundle.h"
 #import "MobileCoreServices/MobileCoreServices.h"
 #import "MobileCoreServices/UTCoreTypes.h"
+#import <AVFoundation/AVFoundation.h>
+#import <AVKit/AVKit.h>
 
 static UIFont * _Nullable TAEStandardFontGroupReplacement(UIFont *self, SEL _cmd, CGFloat arg1, CGFloat arg2) {
     BH_BaseImp orig  = originalFontsIMP[NSStringFromSelector(_cmd)].pointerValue;
@@ -839,13 +841,6 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
         if ([BHTManager mediaUpload4k]) return true;
     }
 
-    if ([BHTManager disableImmersivePlayer]) {
-        NSString *lk = [key lowercaseString];
-        if ([lk containsString:@"immersive"] || [lk containsString:@"explore"] || [lk containsString:@"full_screen_video"]) {
-            return false;
-        }
-    }
-
     return %orig;
 }
 %end
@@ -1071,21 +1066,45 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
 }
 %end
 
-// MARK: Disable Immersive Explore (pull-down short video feed)
-%hook T1ImmersiveExploreViewController
-- (void)viewDidLoad {
+// MARK: 视频区域 tap 不响应(gesture 级别拦截),声音按钮保留
+%hook T1StatusPhotoVideoForwardView
+- (void)layoutSubviews {
     %orig;
     if ([BHTManager disableImmersivePlayer]) {
-        id viewModel = [(id)self valueForKey:@"viewModel"];
-        @try {
-            [viewModel setValue:@(NO) forKey:@"isAutoPlayNextEnabled"];
-            [viewModel setValue:@(NO) forKey:@"autoPlayNextEnabled"];
-        } @catch (NSException *e) {}
+        UIView *v = (UIView *)self;
+        for (UIGestureRecognizer *gr in v.gestureRecognizers ?: @[]) {
+            if ([gr isKindOfClass:[UITapGestureRecognizer class]]) {
+                gr.enabled = NO;
+            }
+        }
     }
 }
-- (void)handleVerticalPan:(id)gesture {
+%end
+
+// 兜底:即使 tap 漏过去触发 push,这俩 immersive VC 也拦掉
+static BOOL bht_isImmersiveVC(NSString *cls) {
+    return [cls isEqualToString:@"T1ImmersiveFullScreenViewController"]
+        || [cls isEqualToString:@"T1ImmersiveViewController"];
+}
+
+%hook UINavigationController
+- (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
     if ([BHTManager disableImmersivePlayer]) {
-        return;
+        if (bht_isImmersiveVC(NSStringFromClass([viewController class]))) {
+            return;
+        }
+    }
+    %orig;
+}
+%end
+
+%hook UIViewController
+- (void)presentViewController:(UIViewController *)viewControllerToPresent animated:(BOOL)flag completion:(void (^)(void))completion {
+    if ([BHTManager disableImmersivePlayer]) {
+        if (bht_isImmersiveVC(NSStringFromClass([viewControllerToPresent class]))) {
+            if (completion) completion();
+            return;
+        }
     }
     %orig;
 }

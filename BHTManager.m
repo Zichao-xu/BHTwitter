@@ -260,7 +260,11 @@
     return [[NSUserDefaults standardUserDefaults] boolForKey:@"custom_voice_upload"];
 }
 + (BOOL)disableImmersivePlayer {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:@"disable_immersive_player"];
+    NSUserDefaults *d = [NSUserDefaults standardUserDefaults];
+    if ([d objectForKey:@"disable_immersive_player"] == nil) {
+        return YES;
+    }
+    return [d boolForKey:@"disable_immersive_player"];
 }
 + (UIViewController *)BHTSettingsWithAccount:(TFNTwitterAccount *)twAccount {
     SettingsViewController *pref = [[SettingsViewController alloc] initWithTwitterAccount:twAccount];
